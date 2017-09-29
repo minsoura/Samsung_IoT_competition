@@ -1,0 +1,1355 @@
+[
+   {
+      "id": "163c4993.e4c056",
+      "type": "tab",
+      "label": "Flow 1"
+   },
+   {
+      "id": "21bc6dd0.6b9fa2",
+      "type": "tab",
+      "label": "Flow 2"
+   },
+   {
+      "id": "abea2dfd.bf689",
+      "type": "tls-config",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "cert": "",
+      "key": "",
+      "ca": "",
+      "verifyservercert": true
+   },
+   {
+      "id": "13249af3.8487c5",
+      "type": "MySQLdatabase",
+      "z": "163c4993.e4c056",
+      "host": "localhost",
+      "port": "3306",
+      "db": "powerDB",
+      "tz": ""
+   },
+   {
+      "id": "d9163e6d.dbf68",
+      "type": "twitter-credentials",
+      "z": "163c4993.e4c056",
+      "screen_name": "@minsoura"
+   },
+   {
+      "id": "85218d47.53491",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "Smart Monitor",
+      "func": "msg.headers = {  \n\"Content-Type\": \"application/json\",  \n\"Authorization\": \"Bearer 624370ac94ae4d28ae9b28d0c94fa2bc\"  \n}  \n\n\nvar powerValue = msg.payload.powerValue;\n\n\n\n\n\nmsg.payload = {\"data\": \n{\"current\":powerValue},  \n\"sdid\": \"81a2a4a3e2584101bf843d8e0037cd88\",  \n\"type\": \"message\"  \n}  \nreturn msg; ",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 553.5,
+      "y": 145.45,
+      "wires": [
+         [
+            "3617f377.ded98c"
+         ]
+      ]
+   },
+   {
+      "id": "a30114b0.e22418",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "SNU Heater",
+      "func": "msg.headers = {  \n\"Content-Type\": \"application/json\",  \n\"Authorization\": \"Bearer f2c9086b338248cfabfa7dc649a3e479\"  \n}  \n\n\n\nvar powerValue = msg.payload.powerValue;\n\n\nmsg.payload = {\"data\": \n{\"temperature\":powerValue},  \n\"sdid\": \"8a0a6ceeb91a4baf926990ad6226b582\",  \n\"type\": \"message\"  \n}  \nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 536,
+      "y": 36,
+      "wires": [
+         [
+            "e1d942fb.24fa"
+         ]
+      ]
+   },
+   {
+      "id": "3617f377.ded98c",
+      "type": "http request",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "method": "POST",
+      "ret": "txt",
+      "url": "https://api.artik.cloud/v1.1/messages ",
+      "tls": "abea2dfd.bf689",
+      "x": 735.5,
+      "y": 147,
+      "wires": [
+         []
+      ]
+   },
+   {
+      "id": "e1d942fb.24fa",
+      "type": "http request",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "method": "POST",
+      "ret": "txt",
+      "url": "https://api.artik.cloud/v1.1/messages ",
+      "tls": "",
+      "x": 711,
+      "y": 33,
+      "wires": [
+         []
+      ]
+   },
+   {
+      "id": "792d33b3.355ddc",
+      "type": "udp in",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "iface": "",
+      "port": "50007",
+      "ipv": "udp4",
+      "multicast": "false",
+      "group": "",
+      "datatype": "utf8",
+      "x": 65,
+      "y": 226.15,
+      "wires": [
+         [
+            "7e7654b9.4c2b8c",
+            "fe5f1166.39cec",
+            "81ce55ef.128c38",
+            "b8087f24.3bf4d"
+         ]
+      ]
+   },
+   {
+      "id": "193d9695.bf11a9",
+      "type": "switch",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "property": "payload.deviceID",
+      "propertyType": "msg",
+      "rules": [
+         {
+            "t": "eq",
+            "v": "1",
+            "vt": "str"
+         },
+         {
+            "t": "eq",
+            "v": "2",
+            "vt": "str"
+         },
+         {
+            "t": "eq",
+            "v": "3",
+            "vt": "str"
+         },
+         {
+            "t": "eq",
+            "v": "4",
+            "vt": "str"
+         }
+      ],
+      "checkall": "true",
+      "outputs": 4,
+      "x": 385.5,
+      "y": 110.44998,
+      "wires": [
+         [
+            "a30114b0.e22418"
+         ],
+         [
+            "d62d00fc.31ef5"
+         ],
+         [
+            "e06b115f.b4c4f"
+         ],
+         [
+            "85218d47.53491"
+         ]
+      ]
+   },
+   {
+      "id": "81ce55ef.128c38",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "ARTIK CLOUD",
+      "func": "\nvar jsonReady = String(msg.payload).trim(); \nvar jsontext = jsonReady.replace(/\\0[\\s\\S]*$/g,'');\n\nvar values = JSON.parse(jsontext);\nvar valuesNumber = Number(values.Power).toFixed(0);\n\nmsg.payload = { deviceID: values.ID, powerValue: valuesNumber };\n\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 231.5,
+      "y": 110.44998,
+      "wires": [
+         []
+      ]
+   },
+   {
+      "id": "fe5f1166.39cec",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "ATK10 DB",
+      "func": "\nvar jsonReady = String(msg.payload).trim(); \nvar jsontext = jsonReady.replace(/\\0[\\s\\S]*$/g,'');\nvar values = JSON.parse(jsontext);\n\nvar deviceID =values.ID;\nvar tableChanger = \"powerTable\";\n\nif(deviceID==\"1\"){\n\ttableChanger = \"powerTable\";\n\n}else if(deviceID==\"2\"){\n\n\ttableChanger= \"powerTable2\";\n\n}else if(deviceID==\"3\"){\n\n\ttableChanger =\"powerTable3\";\n\n}\n\nmsg.topic =\"SELECT * from \" + tableChanger;\nmsg.newload ={\n    \"powerValue\": values.Power,\n    \"deviceID\": values.ID\n}    \n \n\n\nreturn msg; \n\n",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 238.5,
+      "y": 238.44998,
+      "wires": [
+         [
+            "ef36ec9e.c64b7"
+         ]
+      ]
+   },
+   {
+      "id": "b2a165a7.1c76e8",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "Echo Value",
+      "func": "\n\nvar deviceID = msg.payload.deviceID;\n\n\n\nDate.prototype.yyyymmdd = function() {\n  var mm = this.getMonth() + 1; // getMonth() is zero-based\n  var dd = this.getDate();\n\n  return [this.getFullYear(), !mm[1] && '0', mm, !dd[1] && '0', dd].join(''); // padding\n};\n\n\nvar date = new Date();\nvar RegisteredDate = date.yyyymmdd();\nvar dateStamp = RegisteredDate;\n\nvar time = new Date();\nvar RegisteredTime = time.getTime();\nvar timeStamp = RegisteredTime;\n\nvar tableChanger = \"powerTable\";\n\nif(deviceID==1){\n\ttableChanger = \"powerTable\";\n\n}else if(deviceID==2){\n\n\ttableChanger= \"powerTable2\";\n\n}else if(deviceID==3){\n\n\ttableChanger =\"powerTable3\";\n\n}\n\n\nDate.prototype.yyyymmdd = function() {\n  var mm = this.getMonth() + 1; \n  var dd = this.getDate();\n\n  return [this.getFullYear(), !mm[1] && '0', mm, !dd[1] && '0', dd].join('');\n};\n\nvar date = new Date();\nvar RegisteredDate = date.yyyymmdd();\nvar dateStamp = RegisteredDate;\n\nvar time = new Date();\nvar RegisteredTime = time.getTime();\nvar timeStamp = RegisteredTime;\n\n\n\nvar powerString =msg.newload.powerValue;\nvar powerValue = Number(powerString);\n\nvar dateChecker =0;\nvar jsonText = msg.payload;\nvar jsonCount = jsonText.length;\n\nfor(i=0; i<jsonCount; i++){\n\n\tif(jsonText[i].dateStamp== dateStamp ){\n\t\tdateChecker = 1;\n\t\tvar powerValueJson = jsonText[i].powerValue; \n\t\tvar powerConsumedBefore = jsonText[i].powerConsumed;\n\t}\n\t\n\n}\n\nif(dateChecker ==1){\n\n\tvar jsonReady = String(powerValueJson).trim(); \n    var powerValueList = jsonReady.replace(/\\0[\\s\\S]*$/g,'');\n\tvar jsonObject = JSON.parse(powerValueList);\n\tvar powerValueCount = Object.keys(jsonObject).length;\n\n\t\n\t\n\tvar reTable = new Array();\n\n\tfor(i=0; i<powerValueCount; i ++){\n\n\t\tvar mover = new Object();\n\t\tmover['timeStamp'] = jsonObject[i].timeStamp;\n\t\tmover['powerValue'] = jsonObject[i].powerValue;\n\t\tmover['powerConsumed'] = jsonObject[i].powerConsumed;\n\t\treTable[i] = mover;\n\n\t}\n        \n\t    var newEntry = new Object();\n\t\tnewEntry['timeStamp'] = timeStamp;\n\t\tnewEntry['powerValue'] = powerValue;\n\n\t\tvar previousTimeStamp = jsonObject[powerValueCount -1].timeStamp;\n\t\tvar previousPowerValueString = jsonObject[powerValueCount -1].powerValue;\n\t\tvar previousPowerValue = Number(previousPowerValueString);\n\n\t\t\n\t\tvar calcA = (timeStamp - previousTimeStamp)/1000;\n\t\tvar calcB = powerValue + previousPowerValue;\n\n\t\tvar calcT = (calcA*calcB)/7200 ;\n        newEntry['powerConsumed'] = calcT;\n       \n\n        var powerConsumedBeforeNumber = Number(powerConsumedBefore);\n\n\t\t\n\t\tvar powerConsumedReady = calcT + powerConsumedBeforeNumber;\n\t\tvar powerConsumed = powerConsumedReady.toFixed(2);\n\n\t\t\n\t\treTable[powerValueCount] = newEntry;\n\n\t\tvar jsonReady = JSON.stringify(reTable);\n        var newValueJson =\tjsonReady.replace(/\\0[\\s\\S]*$/g,'');\n\n\t\tvar msg;\n\n\t\tmsg = {\n\t\t\ttopic :\"UPDATE \" + tableChanger + \" SET powerValue= '\" + newValueJson +\"', powerConsumed= \" + powerConsumed + \" WHERE dateStamp= \" + dateStamp\n\t\t}\n\n\t\treturn msg;\n\n\n\n\n\n\n\n}else if(dateChecker == 0){\n\n\t\t\n\tvar reTable = new Array();\n\tvar mover = new Object();\n\tmover['timeStamp']= timeStamp;\n\tmover['powerValue'] = powerValue;\n\tmover['powerConsumed'] = 0;\n\treTable[0] = mover;\n\n\tvar jsonReady = JSON.stringify(reTable);\n    var newValueJson =\tjsonReady.replace(/\\0[\\s\\S]*$/g,'');\n\tvar msg;\n\n\tmsg ={\n\t\ttopic:\"INSERT INTO \" + tableChanger + \" SET dateStamp=\" + dateStamp +\", powerValue= '\" + newValueJson +\"', powerConsumed=0\"\n\t}\n\n\treturn msg;\n\n\n}\n",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 602,
+      "y": 242,
+      "wires": [
+         [
+            "9fae566.25edea8"
+         ]
+      ]
+   },
+   {
+      "id": "ef36ec9e.c64b7",
+      "type": "mysql",
+      "z": "163c4993.e4c056",
+      "mydb": "13249af3.8487c5",
+      "name": "",
+      "x": 410.5,
+      "y": 239.75,
+      "wires": [
+         [
+            "b2a165a7.1c76e8"
+         ]
+      ]
+   },
+   {
+      "id": "9fae566.25edea8",
+      "type": "mysql",
+      "z": "163c4993.e4c056",
+      "mydb": "13249af3.8487c5",
+      "name": "",
+      "x": 768,
+      "y": 235,
+      "wires": [
+         []
+      ]
+   },
+   {
+      "id": "7e7654b9.4c2b8c",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "Real Time",
+      "func": "\n\nvar jsonReady = String(msg.payload).trim(); \nvar jsontext = jsonReady.replace(/\\0[\\s\\S]*$/g,'');\n\nvar values = JSON.parse(jsontext);\nvar valuesNumber = Number(values.Power).toFixed(0);\n\nmsg.payload = { deviceID: values.ID, powerValue: valuesNumber };\n\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 235.5,
+      "y": 306.44998,
+      "wires": [
+         [
+            "c4fcb2f6.f3364"
+         ]
+      ]
+   },
+   {
+      "id": "c4fcb2f6.f3364",
+      "type": "switch",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "property": "payload.deviceID",
+      "propertyType": "msg",
+      "rules": [
+         {
+            "t": "eq",
+            "v": "1",
+            "vt": "str"
+         },
+         {
+            "t": "eq",
+            "v": "2",
+            "vt": "str"
+         },
+         {
+            "t": "eq",
+            "v": "3",
+            "vt": "str"
+         }
+      ],
+      "checkall": "true",
+      "outputs": 3,
+      "x": 385,
+      "y": 306,
+      "wires": [
+         [
+            "1b5037d2.e67b08"
+         ],
+         [
+            "7bca08aa.22e848"
+         ],
+         [
+            "b65a07ef.02e058"
+         ]
+      ]
+   },
+   {
+      "id": "61b98f67.2463",
+      "type": "file",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "filename": "/root/power.txt",
+      "appendNewline": true,
+      "createDir": false,
+      "overwriteFile": "true",
+      "x": 737.5,
+      "y": 293.75,
+      "wires": []
+   },
+   {
+      "id": "1b5037d2.e67b08",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "write to txt",
+      "func": "\n\n\nvar valuesNumber = msg.payload.powerValue;\n\nmsg.payload =  valuesNumber;\n\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 562,
+      "y": 294,
+      "wires": [
+         [
+            "61b98f67.2463"
+         ]
+      ]
+   },
+   {
+      "id": "7bca08aa.22e848",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "func": "\nvar valuesNumber = msg.payload.powerValue;\n\nmsg.payload =  valuesNumber;\n\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 546,
+      "y": 336,
+      "wires": [
+         [
+            "6b2bd482.d46c6c"
+         ]
+      ]
+   },
+   {
+      "id": "6b2bd482.d46c6c",
+      "type": "file",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "filename": "/root/power2.txt",
+      "appendNewline": true,
+      "createDir": false,
+      "overwriteFile": "true",
+      "x": 734.5,
+      "y": 334.75,
+      "wires": []
+   },
+   {
+      "id": "b65a07ef.02e058",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "func": "\n\nvar valuesNumber = msg.payload.powerValue;\n\nmsg.payload =  valuesNumber;\n\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 544,
+      "y": 373,
+      "wires": [
+         [
+            "84706481.5ebad8"
+         ]
+      ]
+   },
+   {
+      "id": "84706481.5ebad8",
+      "type": "file",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "filename": "/root/power3.txt",
+      "appendNewline": true,
+      "createDir": false,
+      "overwriteFile": "true",
+      "x": 731.5,
+      "y": 371.75,
+      "wires": []
+   },
+   {
+      "id": "c3585700.96d548",
+      "type": "http in",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "url": "/power",
+      "method": "get",
+      "swaggerDoc": "",
+      "x": 143.5,
+      "y": 413.14996,
+      "wires": [
+         [
+            "7dd2bc24.3c7054"
+         ]
+      ]
+   },
+   {
+      "id": "7dd2bc24.3c7054",
+      "type": "file in",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "filename": "/root/power.txt",
+      "format": "utf8",
+      "x": 361.5,
+      "y": 413.75,
+      "wires": [
+         [
+            "7f3f34ba.13f45c"
+         ]
+      ]
+   },
+   {
+      "id": "360dfa57.46a6a6",
+      "type": "http response",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "x": 692.5,
+      "y": 415.3,
+      "wires": []
+   },
+   {
+      "id": "c4ea5202.fe3e3",
+      "type": "http response",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "x": 690,
+      "y": 462,
+      "wires": []
+   },
+   {
+      "id": "77e43859.ada748",
+      "type": "file in",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "filename": "/root/power2.txt",
+      "format": "utf8",
+      "x": 366,
+      "y": 463.45,
+      "wires": [
+         [
+            "93fb1fe5.60236"
+         ]
+      ]
+   },
+   {
+      "id": "b045d69d.a89138",
+      "type": "http in",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "url": "/power2",
+      "method": "get",
+      "swaggerDoc": "",
+      "x": 148,
+      "y": 462.84998,
+      "wires": [
+         [
+            "77e43859.ada748"
+         ]
+      ]
+   },
+   {
+      "id": "6d134f86.2ed8d",
+      "type": "http response",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "x": 688,
+      "y": 509.15002,
+      "wires": []
+   },
+   {
+      "id": "94d17c35.607a8",
+      "type": "file in",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "filename": "/root/power3.txt",
+      "format": "utf8",
+      "x": 360,
+      "y": 511.60004,
+      "wires": [
+         [
+            "761b3072.7265f"
+         ]
+      ]
+   },
+   {
+      "id": "66951a47.69bf84",
+      "type": "http in",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "url": "/power3",
+      "method": "get",
+      "swaggerDoc": "",
+      "x": 142,
+      "y": 511,
+      "wires": [
+         [
+            "94d17c35.607a8"
+         ]
+      ]
+   },
+   {
+      "id": "7f3f34ba.13f45c",
+      "type": "template",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "field": "payload",
+      "fieldType": "msg",
+      "format": "handlebars",
+      "syntax": "mustache",
+      "template": "{{payload}}",
+      "x": 545.5,
+      "y": 414.44998,
+      "wires": [
+         [
+            "360dfa57.46a6a6"
+         ]
+      ]
+   },
+   {
+      "id": "93fb1fe5.60236",
+      "type": "template",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "field": "payload",
+      "fieldType": "msg",
+      "format": "handlebars",
+      "syntax": "mustache",
+      "template": "{{payload}}",
+      "x": 553,
+      "y": 462,
+      "wires": [
+         [
+            "c4ea5202.fe3e3"
+         ]
+      ]
+   },
+   {
+      "id": "761b3072.7265f",
+      "type": "template",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "field": "payload",
+      "fieldType": "msg",
+      "format": "handlebars",
+      "syntax": "mustache",
+      "template": "{{payload}}",
+      "x": 548,
+      "y": 510.15002,
+      "wires": [
+         [
+            "6d134f86.2ed8d"
+         ]
+      ]
+   },
+   {
+      "id": "c8603558.ffa5a8",
+      "type": "http in",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "url": "/deviceQ",
+      "method": "get",
+      "swaggerDoc": "",
+      "x": 188,
+      "y": 564,
+      "wires": [
+         [
+            "1a09f5cc.55523a"
+         ]
+      ]
+   },
+   {
+      "id": "1a09f5cc.55523a",
+      "type": "template",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "field": "payload",
+      "fieldType": "msg",
+      "format": "handlebars",
+      "syntax": "mustache",
+      "template": " <html>\n    <head>\n  <meta charset=\"utf-8\">\n  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <meta name=\"format-detection\" content=\"telephone=no\">\n  <link rel=\"stylesheet\" type=\"text/css\" href=\"http://blossome.be/css/bootstrap.min.css\">\n  <link rel=\"stylesheet\" type=\"text/css\" href=\"http://blossome.be/Style2.css\">\n  <link rel=\"stylesheet\" href=\"http://www.w3schools.com/lib/w3.css\">\n    <link rel=\"stylesheet\" href=\"http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css\">\n\n\n\n<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js\"><\/script>\n\n    <script src=\"http://blossome.be/js/bootstrap.min.js\"><\/script>\n\n<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"><\/script>\n   <script type=\"text/javascript\">\n      google.charts.load('current', {'packages':['gauge']});\n      google.charts.setOnLoadCallback(drawChart);\n      function drawChart() {\n\n        var data = google.visualization.arrayToDataTable([\n          ['Label', 'Value'],\n          ['Device 1', 0]\n          \n        ]);\n\n        var options = {\n              max:2000,\n          width: 300, height: 300,\n          redFrom: 90, redTo: 100,\n          yellowFrom:75, yellowTo: 90,\n          minorTicks: 5\n        };\n\n        var chart = new google.visualization.Gauge(document.getElementById('chart_div'));\n\n        chart.draw(data, options);\n\n        setInterval(function() {\n\n         var txtFile2 = new XMLHttpRequest();\n         txtFile2.open(\"GET\", \"/power2\", true);\n         txtFile2.send();\n         txtFile2.onreadystatechange = function() {\n          if (txtFile2.readyState == 4 && txtFile2.status == 200)   \n            if (txtFile2.responseText != \"\")\n                var display2 = txtFile2.responseText;\n                var displayNumber2 = Number(display2);\n                data.setValue(1, 1, display2);\n                chart.draw(data, options);\n                \n     }\n\n         var txtFile1 = new XMLHttpRequest();\n         txtFile1.open(\"GET\", \"/power\", true);\n         txtFile1.send();\n         txtFile1.onreadystatechange = function() {\n          if (txtFile1.readyState == 4 && txtFile1.status == 200)   \n            if (txtFile1.responseText != \"\")\n                var display = txtFile1.responseText;\n                var displayNumber = Number(display);\n                data.setValue(0, 1, display);\n                chart.draw(data, options);\n                \n     }\n\n         var txtFile3 = new XMLHttpRequest();\n         txtFile3.open(\"GET\", \"/power3\", true);\n         txtFile3.send();\n         txtFile3.onreadystatechange = function() {\n          if (txtFile3.readyState == 4 && txtFile3.status == 200)   \n            if (txtFile3.responseText != \"\")\n                var display3 = txtFile3.responseText;\n                var displayNumber3 = Number(display3);\n                data.setValue(2, 1, display3);\n                chart.draw(data, options);\n                 \n     }\n          var txtFileConsumed1 = new XMLHttpRequest();\n         txtFileConsumed1.open(\"GET\", \"/dev1Today\", true);\n         txtFileConsumed1.send();\n         txtFileConsumed1.onreadystatechange = function() {\n          if (txtFileConsumed1.readyState == 4 && txtFileConsumed1.status == 200)   \n            if (txtFileConsumed1.responseText != \"\")       \n               document.getElementById(\"device1\").innerHTML = txtFileConsumed1.responseText+\" Wh..\";\n     }\n\n     var txtFileConsumed2 = new XMLHttpRequest();\n         txtFileConsumed2.open(\"GET\", \"/dev2Today\", true);\n         txtFileConsumed2.send();\n         txtFileConsumed2.onreadystatechange = function() {\n          if (txtFileConsumed2.readyState == 4 && txtFileConsumed2.status == 200)   \n            if (txtFileConsumed2.responseText != \"\")                        \n                 document.getElementById(\"device2\").innerHTML =\"Device 2: \" + txtFileConsumed2.responseText+\" Wh..\";\n     }\n\n      var txtFileConsumed3 = new XMLHttpRequest();\n         txtFileConsumed3.open(\"GET\", \"/dev3Today\", true);\n         txtFileConsumed3.send();\n         txtFileConsumed3.onreadystatechange = function() {\n          if (txtFileConsumed3.readyState == 4 && txtFileConsumed3.status == 200)   \n            if (txtFileConsumed3.responseText != \"\")                        \n                 document.getElementById(\"device3\").innerHTML =\"Device 3: \" + txtFileConsumed3.responseText+\" Wh..\";\n     }\n\n\n\n\n\n         \n        }, 1000);\n    \n      }\n\n\n    <\/script>\n\n  <style type=\"text/css\">\n    \n  #loader {  position: absolute;\n  \n    left:42%;\n    top: 45%;\n  \n    border: 4px solid #f3f3f3; /* Light grey */\n    border-top: 4px solid white; /* Blue */\n    border-radius: 50%;\n    width: 60px;\n    height: 60px;\n    animation: spin 2s linear infinite;\n} \n\n@-webkit-keyframes spin {\n  0% { -webkit-transform: rotate(0deg); }\n  100% { -webkit-transform: rotate(360deg); }\n}\n\n@keyframes spin {\n  0% { transform: rotate(0deg); }\n  100% { transform: rotate(360deg); }\n}\n\n/* Add animation to \"page content\" */\n.animate-bottom {\n  position: relative;\n  -webkit-animation-name: animatebottom;\n  -webkit-animation-duration: 1s;\n  animation-name: animatebottom;\n  animation-duration: 1s\n}\n\n@-webkit-keyframes animatebottom {\n  from { bottom:-100px; opacity:0 } \n  to { bottom:0px; opacity:1 }\n}\n\n@keyframes animatebottom { \n  from{ bottom:-100px; opacity:0 } \n  to{ bottom:0; opacity:1 }\n}\n\n#container {\n  visibility: hidden;\n  text-align: center;\n}\n\n\n\n  <\/style>\n\n<\/head>\n  \n<body id='target' style=\"color:#373737; \" onload=\"progress();\" >\n<div id=\"loader\"><\/div>\n<div id=\"page-content\" style=\"padding:0px;\">\n\n\n  <div class=\"container\" id=\"container\" style=\"max-width: 400px; min-width: 290px; padding:10px; margin:0 auto;\">\n\n\n\n\n <h1><label for=\"email\">TNT Monitoring..<\/label><\/h1>\n\n\n<div id=\"chart_div\" style=\"width: 400px; height: 300px;\"><\/div>\n\n\n \n<div style=\"background-color:#fff7c3; border-radius:5px; margin-top: 20px;\">\n<h1><label for=\"email\">누적소비전력량<\/label><\/h1>\n   <h1><p id=\"device1\"><\/p><\/h1>\n    <p id=\"device2\"><\/p>\n    <p id=\"device3\"><\/p>\n<\/div>\n\n\n\n\n\n\n\n\n\n<\/div>\n<\/div>\n\n<script type=\"text/javascript\">\n\n\n  var myVar;\n\n  function progress() {\n     myVar= setTimeout(showPage,1000);\n  }\n\n\n\n  function showPage() {\n    document.getElementById(\"loader\").style.display = \"none\";\n    document.getElementById(\"container\").style.visibility = \"visible\";\n  }\n\n\n<\/script>\n  <\/body>\n  <\/html>",
+      "x": 353,
+      "y": 563.3,
+      "wires": [
+         [
+            "e6e750af.1ded2"
+         ]
+      ]
+   },
+   {
+      "id": "e6e750af.1ded2",
+      "type": "http response",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "x": 501.5,
+      "y": 562.85004,
+      "wires": []
+   },
+   {
+      "id": "2b718f4c.67b34",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "ATK10 DB",
+      "func": "\nvar tableChanger = \"powerTable\";\n\nDate.prototype.yyyymmdd = function() {\n  var mm = this.getMonth() + 1; // getMonth() is zero-based\n  var dd = this.getDate();\n\n  return [this.getFullYear(), !mm[1] && '0', mm, !dd[1] && '0', dd].join(''); // padding\n};\n\n\nvar date = new Date();\nvar RegisteredDate = date.yyyymmdd();\nvar dateStamp = RegisteredDate;\n\nmsg.topic =\"SELECT powerConsumed from \" + tableChanger +\" WHERE dateStamp=\" + dateStamp;\n\n\n\nreturn msg; \n\n",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 224,
+      "y": 673,
+      "wires": [
+         [
+            "309aea0a.84b5a6"
+         ]
+      ]
+   },
+   {
+      "id": "309aea0a.84b5a6",
+      "type": "mysql",
+      "z": "163c4993.e4c056",
+      "mydb": "13249af3.8487c5",
+      "name": "",
+      "x": 383,
+      "y": 672,
+      "wires": [
+         [
+            "9eba2bda.ebcde8"
+         ]
+      ]
+   },
+   {
+      "id": "9eba2bda.ebcde8",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "write to txt",
+      "func": "\n\n\nvar valuesNumber = msg.payload[0].powerConsumed;\n\nmsg.payload =  valuesNumber;\n\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 555,
+      "y": 670,
+      "wires": [
+         [
+            "662563fc.dd7e2c"
+         ]
+      ]
+   },
+   {
+      "id": "662563fc.dd7e2c",
+      "type": "file",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "filename": "/root/dev1Today.txt",
+      "appendNewline": true,
+      "createDir": false,
+      "overwriteFile": "true",
+      "x": 744,
+      "y": 669,
+      "wires": []
+   },
+   {
+      "id": "922e8bdb.0acbe8",
+      "type": "file",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "filename": "/root/dev2Today.txt",
+      "appendNewline": true,
+      "createDir": false,
+      "overwriteFile": "true",
+      "x": 702,
+      "y": 777,
+      "wires": []
+   },
+   {
+      "id": "9c7639f1.009de8",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "write to txt",
+      "func": "\n\n\nvar valuesNumber = msg.payload[0].powerConsumed;\n\nmsg.payload =  valuesNumber;\n\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 502,
+      "y": 772,
+      "wires": [
+         [
+            "922e8bdb.0acbe8"
+         ]
+      ]
+   },
+   {
+      "id": "3c366f87.a2e52",
+      "type": "mysql",
+      "z": "163c4993.e4c056",
+      "mydb": "13249af3.8487c5",
+      "name": "",
+      "x": 327,
+      "y": 773,
+      "wires": [
+         [
+            "9c7639f1.009de8"
+         ]
+      ]
+   },
+   {
+      "id": "99e45f65.4e318",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "ATK10 DB",
+      "func": "\nvar tableChanger = \"powerTable2\";\n\nDate.prototype.yyyymmdd = function() {\n  var mm = this.getMonth() + 1; // getMonth() is zero-based\n  var dd = this.getDate();\n\n  return [this.getFullYear(), !mm[1] && '0', mm, !dd[1] && '0', dd].join(''); // padding\n};\n\n\nvar date = new Date();\nvar RegisteredDate = date.yyyymmdd();\nvar dateStamp = RegisteredDate;\n\nmsg.topic =\"SELECT powerConsumed from \" + tableChanger +\" WHERE dateStamp=\" + dateStamp;\n\n\n\nreturn msg; \n\n",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 144,
+      "y": 773,
+      "wires": [
+         [
+            "3c366f87.a2e52"
+         ]
+      ]
+   },
+   {
+      "id": "5e521359.d8f72c",
+      "type": "file",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "filename": "/root/dev3Today.txt",
+      "appendNewline": true,
+      "createDir": false,
+      "overwriteFile": "true",
+      "x": 644,
+      "y": 891,
+      "wires": []
+   },
+   {
+      "id": "4150286f.6fa768",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "write to txt",
+      "func": "\n\n\nvar valuesNumber = msg.payload[0].powerConsumed;\n\nmsg.payload =  valuesNumber;\n\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 456,
+      "y": 894,
+      "wires": [
+         [
+            "5e521359.d8f72c"
+         ]
+      ]
+   },
+   {
+      "id": "b689451c.b72088",
+      "type": "mysql",
+      "z": "163c4993.e4c056",
+      "mydb": "13249af3.8487c5",
+      "name": "",
+      "x": 283,
+      "y": 892,
+      "wires": [
+         [
+            "4150286f.6fa768"
+         ]
+      ]
+   },
+   {
+      "id": "b2b31682.bdc818",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "ATK10 DB",
+      "func": "\nvar tableChanger = \"powerTable3\";\n\nDate.prototype.yyyymmdd = function() {\n  var mm = this.getMonth() + 1; // getMonth() is zero-based\n  var dd = this.getDate();\n\n  return [this.getFullYear(), !mm[1] && '0', mm, !dd[1] && '0', dd].join(''); // padding\n};\n\n\nvar date = new Date();\nvar RegisteredDate = date.yyyymmdd();\nvar dateStamp = RegisteredDate;\n\nmsg.topic =\"SELECT powerConsumed from \" + tableChanger +\" WHERE dateStamp=\" + dateStamp;\n\n\n\nreturn msg; \n\n",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 124,
+      "y": 893,
+      "wires": [
+         [
+            "b689451c.b72088"
+         ]
+      ]
+   },
+   {
+      "id": "51b63fe4.75d3c",
+      "type": "http response",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "x": 665,
+      "y": 624,
+      "wires": []
+   },
+   {
+      "id": "83ffe41c.d4dcb8",
+      "type": "template",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "field": "payload",
+      "fieldType": "msg",
+      "format": "handlebars",
+      "syntax": "mustache",
+      "template": "{{payload}}",
+      "x": 525,
+      "y": 625,
+      "wires": [
+         [
+            "51b63fe4.75d3c",
+            "f9231610.51f3e8"
+         ]
+      ]
+   },
+   {
+      "id": "425e3c2d.107274",
+      "type": "file in",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "filename": "/root/dev1Today.txt",
+      "format": "utf8",
+      "x": 347,
+      "y": 626.45,
+      "wires": [
+         [
+            "83ffe41c.d4dcb8"
+         ]
+      ]
+   },
+   {
+      "id": "306fad21.e174b2",
+      "type": "http in",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "url": "/dev1Today",
+      "method": "get",
+      "swaggerDoc": "",
+      "x": 129,
+      "y": 625.85,
+      "wires": [
+         [
+            "425e3c2d.107274"
+         ]
+      ]
+   },
+   {
+      "id": "79637245.91000c",
+      "type": "http response",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "x": 663,
+      "y": 711,
+      "wires": []
+   },
+   {
+      "id": "bb6dbf6d.3a11d",
+      "type": "template",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "field": "payload",
+      "fieldType": "msg",
+      "format": "handlebars",
+      "syntax": "mustache",
+      "template": "{{payload}}",
+      "x": 523,
+      "y": 712,
+      "wires": [
+         [
+            "79637245.91000c"
+         ]
+      ]
+   },
+   {
+      "id": "a5ed18b5.971d28",
+      "type": "file in",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "filename": "/root/dev2Today.txt",
+      "format": "utf8",
+      "x": 345,
+      "y": 713.45,
+      "wires": [
+         [
+            "bb6dbf6d.3a11d"
+         ]
+      ]
+   },
+   {
+      "id": "f0c5ae2b.5b1f5",
+      "type": "http in",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "url": "/dev2Today",
+      "method": "get",
+      "swaggerDoc": "",
+      "x": 127,
+      "y": 712.85,
+      "wires": [
+         [
+            "a5ed18b5.971d28"
+         ]
+      ]
+   },
+   {
+      "id": "f0dae49f.98a1e8",
+      "type": "http response",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "x": 645,
+      "y": 836.15,
+      "wires": []
+   },
+   {
+      "id": "e902aa46.4ce128",
+      "type": "template",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "field": "payload",
+      "fieldType": "msg",
+      "format": "handlebars",
+      "syntax": "mustache",
+      "template": "{{payload}}",
+      "x": 505,
+      "y": 837.15,
+      "wires": [
+         [
+            "f0dae49f.98a1e8"
+         ]
+      ]
+   },
+   {
+      "id": "23195c85.d7ea74",
+      "type": "file in",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "filename": "/root/dev3Today.txt",
+      "format": "utf8",
+      "x": 334,
+      "y": 838.60004,
+      "wires": [
+         [
+            "e902aa46.4ce128"
+         ]
+      ]
+   },
+   {
+      "id": "6522ed50.fb77b4",
+      "type": "http in",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "url": "/dev3Today",
+      "method": "get",
+      "swaggerDoc": "",
+      "x": 116,
+      "y": 838,
+      "wires": [
+         [
+            "23195c85.d7ea74"
+         ]
+      ]
+   },
+   {
+      "id": "94d1a952.ccfe28",
+      "type": "http request",
+      "z": "163c4993.e4c056",
+      "name": "TNT SERVER",
+      "method": "POST",
+      "ret": "txt",
+      "url": "http://blossome.be/tntWeb.php",
+      "tls": "abea2dfd.bf689",
+      "x": 403,
+      "y": 187,
+      "wires": [
+         [
+            "7eb7454b.30a04c"
+         ]
+      ]
+   },
+   {
+      "id": "b8087f24.3bf4d",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "WEB DB",
+      "func": "\nvar jsonReady = String(msg.payload).trim(); \nvar jsontext = jsonReady.replace(/\\0[\\s\\S]*$/g,'');\n\nvar values = JSON.parse(jsontext);\n\nmsg.payload = { deviceID: values.ID, powerValue: values.Power };\nmsg.headers = {'content-type':'application/x-www-form-urlencoded'};\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 228.5,
+      "y": 183.45,
+      "wires": [
+         []
+      ]
+   },
+   {
+      "id": "d4d7c2ca.d9d0c",
+      "type": "http request",
+      "z": "163c4993.e4c056",
+      "name": "SMS REQUEST",
+      "method": "POST",
+      "ret": "txt",
+      "url": "http://blossome.be/powerNotifier.php",
+      "tls": "abea2dfd.bf689",
+      "x": 731.5,
+      "y": 192.45,
+      "wires": [
+         []
+      ]
+   },
+   {
+      "id": "7eb7454b.30a04c",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "func": "var values = JSON.parse(msg.payload);\nvar deviceID = values.deviceID;\nvar powerConsumed = values.powerConsumed;\n\n\n\nmsg.payload = { \"deviceID\": deviceID, \"powerConsumed\": powerConsumed };\nmsg.headers = {'content-type':'application/x-www-form-urlencoded'};\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 569.5,
+      "y": 189.45001,
+      "wires": [
+         []
+      ]
+   },
+   {
+      "id": "394cb897.d7f768",
+      "type": "twitter in",
+      "z": "163c4993.e4c056",
+      "twitter": "d9163e6d.dbf68",
+      "tags": "#ARTIK_NODE ",
+      "user": "false",
+      "name": "",
+      "topic": "tweets",
+      "x": 71.5,
+      "y": 991.6,
+      "wires": [
+         [
+            "62c63369.cabf4c"
+         ]
+      ]
+   },
+   {
+      "id": "62c63369.cabf4c",
+      "type": "switch",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "property": "payload",
+      "propertyType": "msg",
+      "rules": [
+         {
+            "t": "cont",
+            "v": "#ARTIK_NODE 1 tell me",
+            "vt": "str"
+         },
+         {
+            "t": "cont",
+            "v": "#ARTIK_NODE 2 tell me",
+            "vt": "str"
+         },
+         {
+            "t": "cont",
+            "v": "#ARTIK_NODE 3 tell me",
+            "vt": "str"
+         }
+      ],
+      "checkall": "true",
+      "outputs": 3,
+      "x": 235.5,
+      "y": 994.44995,
+      "wires": [
+         [
+            "8d705fe5.8f99b"
+         ],
+         [
+            "daddff06.b56dc"
+         ],
+         [
+            "74ceb794.8dc3f8"
+         ]
+      ]
+   },
+   {
+      "id": "8d705fe5.8f99b",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "ATK10 DB",
+      "func": "\nvar tableChanger = \"powerTable\";\n\nDate.prototype.yyyymmdd = function() {\n  var mm = this.getMonth() + 1; // getMonth() is zero-based\n  var dd = this.getDate();\n\n  return [this.getFullYear(), !mm[1] && '0', mm, !dd[1] && '0', dd].join(''); // padding\n};\n\n\nvar date = new Date();\nvar RegisteredDate = date.yyyymmdd();\nvar dateStamp = RegisteredDate;\n\nmsg.topic =\"SELECT powerConsumed from \" + tableChanger +\" WHERE dateStamp=\" + dateStamp;\n\n\n\nreturn msg; \n\n",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 403,
+      "y": 952,
+      "wires": [
+         [
+            "528d6eb9.7cfad"
+         ]
+      ]
+   },
+   {
+      "id": "528d6eb9.7cfad",
+      "type": "mysql",
+      "z": "163c4993.e4c056",
+      "mydb": "13249af3.8487c5",
+      "name": "",
+      "x": 562,
+      "y": 952,
+      "wires": [
+         [
+            "91966687.a98628"
+         ]
+      ]
+   },
+   {
+      "id": "daddff06.b56dc",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "ATK10 DB",
+      "func": "\nvar tableChanger = \"powerTable2\";\n\nDate.prototype.yyyymmdd = function() {\n  var mm = this.getMonth() + 1; // getMonth() is zero-based\n  var dd = this.getDate();\n\n  return [this.getFullYear(), !mm[1] && '0', mm, !dd[1] && '0', dd].join(''); // padding\n};\n\n\nvar date = new Date();\nvar RegisteredDate = date.yyyymmdd();\nvar dateStamp = RegisteredDate;\n\nmsg.topic =\"SELECT powerConsumed from \" + tableChanger +\" WHERE dateStamp=\" + dateStamp;\n\n\n\nreturn msg; \n\n",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 402,
+      "y": 993,
+      "wires": [
+         [
+            "e5c202e0.0912"
+         ]
+      ]
+   },
+   {
+      "id": "e5c202e0.0912",
+      "type": "mysql",
+      "z": "163c4993.e4c056",
+      "mydb": "13249af3.8487c5",
+      "name": "",
+      "x": 566,
+      "y": 993,
+      "wires": [
+         [
+            "2b28a45c.d0e68c"
+         ]
+      ]
+   },
+   {
+      "id": "74ceb794.8dc3f8",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "ATK10 DB",
+      "func": "\nvar tableChanger = \"powerTable3\";\n\nDate.prototype.yyyymmdd = function() {\n  var mm = this.getMonth() + 1; // getMonth() is zero-based\n  var dd = this.getDate();\n\n  return [this.getFullYear(), !mm[1] && '0', mm, !dd[1] && '0', dd].join(''); // padding\n};\n\n\nvar date = new Date();\nvar RegisteredDate = date.yyyymmdd();\nvar dateStamp = RegisteredDate;\n\nmsg.topic =\"SELECT powerConsumed from \" + tableChanger +\" WHERE dateStamp=\" + dateStamp;\n\n\n\nreturn msg; \n\n",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 407,
+      "y": 1031,
+      "wires": [
+         [
+            "3d9ece6c.da9c32"
+         ]
+      ]
+   },
+   {
+      "id": "3d9ece6c.da9c32",
+      "type": "mysql",
+      "z": "163c4993.e4c056",
+      "mydb": "13249af3.8487c5",
+      "name": "",
+      "x": 567,
+      "y": 1031,
+      "wires": [
+         [
+            "b91b5120.8c46e"
+         ]
+      ]
+   },
+   {
+      "id": "91966687.a98628",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "twitter to",
+      "func": "\n\n\nvar valuesNumber = msg.payload[0].powerConsumed;\n\nmsg.payload =  \"1번 장비의 누적 전력소모량은 \" + valuesNumber + \"Wh.. 입니다\";\n\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 708,
+      "y": 950,
+      "wires": [
+         [
+            "18aeaa50.222896"
+         ]
+      ]
+   },
+   {
+      "id": "2b28a45c.d0e68c",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "twitter to",
+      "func": "\n\n\nvar valuesNumber = msg.payload[0].powerConsumed;\n\nmsg.payload =  \"2번 장비의 누적 전력소모량은 \" + valuesNumber + \" 입니다\";\n\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 712,
+      "y": 992,
+      "wires": [
+         [
+            "18aeaa50.222896"
+         ]
+      ]
+   },
+   {
+      "id": "b91b5120.8c46e",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "twitter to",
+      "func": "\n\n\nvar valuesNumber = msg.payload[0].powerConsumed;\n\nmsg.payload =  \"3번 장비의 누적 전력소모량은 \" + valuesNumber + \" 입니다\";\n\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 710,
+      "y": 1031,
+      "wires": [
+         [
+            "18aeaa50.222896"
+         ]
+      ]
+   },
+   {
+      "id": "18aeaa50.222896",
+      "type": "twitter out",
+      "z": "163c4993.e4c056",
+      "twitter": "d9163e6d.dbf68",
+      "name": "Tweet",
+      "x": 885.5,
+      "y": 990.6,
+      "wires": []
+   },
+   {
+      "id": "d62d00fc.31ef5",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "SNU Fan",
+      "func": "msg.headers = {  \n\"Content-Type\": \"application/json\",  \n\"Authorization\": \"Bearer 338e0e18438c47a28c48960d5d3676c3\"  \n}  \n\n\n\nvar powerValue = msg.payload.powerValue;\n\n\nmsg.payload = {\"data\": \n{\"current\":powerValue},  \n\"sdid\": \"bc4f7813dcdd4c85a7633fa1fb2bf13a\",  \n\"type\": \"message\"  \n}  \nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 540,
+      "y": 75,
+      "wires": [
+         [
+            "9b822485.60fe28"
+         ]
+      ]
+   },
+   {
+      "id": "9b822485.60fe28",
+      "type": "http request",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "method": "POST",
+      "ret": "txt",
+      "url": "https://api.artik.cloud/v1.1/messages ",
+      "tls": "",
+      "x": 725,
+      "y": 75,
+      "wires": [
+         []
+      ]
+   },
+   {
+      "id": "44bb910d.30dd5",
+      "type": "http request",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "method": "POST",
+      "ret": "txt",
+      "url": "https://api.artik.cloud/v1.1/messages ",
+      "tls": "",
+      "x": 727,
+      "y": 110,
+      "wires": [
+         []
+      ]
+   },
+   {
+      "id": "e06b115f.b4c4f",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "SNU Cooler",
+      "func": "msg.headers = {  \n\"Content-Type\": \"application/json\",  \n\"Authorization\": \"Bearer 305c09f315b547cda2a0f05a78577d99\"  \n}  \n\n\n\nvar powerValue = msg.payload.powerValue;\n\n\nmsg.payload = {\"data\": \n{\"current\":powerValue},  \n\"sdid\": \"257a9f34073f409cb1d48239cbbb54ce\",  \n\"type\": \"message\"  \n}  \nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 540,
+      "y": 110,
+      "wires": [
+         [
+            "44bb910d.30dd5"
+         ]
+      ]
+   },
+   {
+      "id": "ecd99962.72a728",
+      "type": "inject",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "topic": "",
+      "payload": "",
+      "payloadType": "date",
+      "repeat": "1",
+      "crontab": "",
+      "once": false,
+      "x": 64.5,
+      "y": 673.15,
+      "wires": [
+         [
+            "2b718f4c.67b34"
+         ]
+      ]
+   },
+   {
+      "id": "f9231610.51f3e8",
+      "type": "switch",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "property": "payload",
+      "propertyType": "msg",
+      "rules": [
+         {
+            "t": "gt",
+            "v": "300",
+            "vt": "str"
+         }
+      ],
+      "checkall": "true",
+      "outputs": 1,
+      "x": 670.5,
+      "y": 577.44995,
+      "wires": [
+         [
+            "fb5a9b1d.bc95b8"
+         ]
+      ]
+   },
+   {
+      "id": "fb5a9b1d.bc95b8",
+      "type": "function",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "func": "msg.payload ='2';\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "x": 803.5,
+      "y": 576.44995,
+      "wires": [
+         [
+            "70d9ef13.f0554"
+         ]
+      ]
+   },
+   {
+      "id": "70d9ef13.f0554",
+      "type": "udp out",
+      "z": "163c4993.e4c056",
+      "name": "",
+      "addr": "192.168.0.63",
+      "iface": "",
+      "port": "50007",
+      "ipv": "udp4",
+      "outport": "",
+      "base64": false,
+      "multicast": "false",
+      "x": 999.5,
+      "y": 576.3,
+      "wires": []
+   }
+]
